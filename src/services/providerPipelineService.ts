@@ -39,6 +39,24 @@ async function requestJson(url: string, init: any) {
 }
 
 export class ProviderPipelineService {
+  async validateProviderKeys(providerKeys: Partial<ProviderSecrets>) {
+    const validations = [];
+
+    if (providerKeys.openai?.trim()) {
+      validations.push(this.validateOpenAIKey(providerKeys.openai.trim()));
+    }
+
+    if (providerKeys.gemini?.trim()) {
+      validations.push(this.validateGeminiKey(providerKeys.gemini.trim()));
+    }
+
+    if (providerKeys.claude?.trim()) {
+      validations.push(this.validateClaudeKey(providerKeys.claude.trim()));
+    }
+
+    await Promise.all(validations);
+  }
+
   async run(userInput: string, secrets: ProviderSecrets): Promise<ProviderPipelineResult> {
     if (!userInput.trim()) {
       throw new AppError("`input` must be a non-empty string.", 400);
@@ -62,6 +80,48 @@ export class ProviderPipelineService {
       },
       final_output: execution.output,
     };
+  }
+
+  private async validateOpenAIKey(apiKey: string) {
+    await requestJson("https://api.openai.com/v1/models", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+    });
+  }
+
+  private async validateGeminiKey(apiKey: string) {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`,
+      { method: "GET" },
+    );
+    const payload = await response.json();
+
+    if (!response.ok) {
+      throw new AppError(payload?.error?.message || "Gemini API key validation failed.", 400);
+    }
+  }
+
+  private async validateClaudeKey(apiKey: string) {
+    await requestJson("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-3-5-sonnet-latest",
+        max_tokens: 8,
+        messages: [
+          {
+            role: "user",
+            content: "Reply with OK.",
+          },
+        ],
+      }),
+    });
   }
 
   private async runOpenAIResearch(userInput: string, apiKey: string) {

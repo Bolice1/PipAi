@@ -1,5 +1,6 @@
 import { AppError } from "../utils/errors";
 import { verifyAuthToken } from "../utils/crypto";
+import { readCookieValue, SESSION_COOKIE_NAME } from "../utils/cookies";
 
 export type AuthenticatedRequestLike = {
   headers?: Record<string, string | undefined>;
@@ -17,7 +18,9 @@ export function requireAuth(
   next: NextFunctionLike,
 ) {
   const authorization = req.headers?.authorization || req.headers?.Authorization;
-  const token = authorization?.startsWith("Bearer ") ? authorization.slice(7) : "";
+  const bearerToken = authorization?.startsWith("Bearer ") ? authorization.slice(7) : "";
+  const cookieToken = readCookieValue(req.headers?.cookie, SESSION_COOKIE_NAME);
+  const token = bearerToken || cookieToken;
 
   if (!token) {
     next(new AppError("Authentication required.", 401));

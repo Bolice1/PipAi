@@ -1,3 +1,4 @@
+/* client/styles.css */
 :root {
   --bg: #f6efe3;
   --bg-soft: rgba(255, 250, 242, 0.82);
@@ -11,40 +12,47 @@
   --line: rgba(29, 36, 51, 0.12);
   --shadow: 0 24px 80px rgba(63, 42, 19, 0.12);
 }
-
 * {
   box-sizing: border-box;
 }
-
 html,
 body,
 #root {
   min-height: 100%;
 }
-
 body {
   margin: 0;
   background:
-    radial-gradient(circle at top left, rgba(212, 91, 53, 0.14), transparent 32%),
-    radial-gradient(circle at top right, rgba(26, 125, 118, 0.14), transparent 28%),
-    linear-gradient(180deg, #fbf4e8 0%, #f6efe3 100%);
+    radial-gradient(
+      circle at top left,
+      rgba(212, 91, 53, 0.14),
+      transparent 32%),
+    radial-gradient(
+      circle at top right,
+      rgba(26, 125, 118, 0.14),
+      transparent 28%),
+    linear-gradient(
+      180deg,
+      #fbf4e8 0%,
+      #f6efe3 100%);
   color: var(--ink);
-  font-family: "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
+  font-family:
+    "Space Grotesk",
+    "Avenir Next",
+    "Segoe UI",
+    sans-serif;
 }
-
 button,
 textarea,
 input {
   font: inherit;
 }
-
 .shell {
   position: relative;
   overflow: hidden;
   min-height: 100vh;
   padding: 40px 20px 72px;
 }
-
 .aurora {
   position: absolute;
   width: 22rem;
@@ -54,19 +62,16 @@ input {
   opacity: 0.55;
   pointer-events: none;
 }
-
 .aurora-left {
   top: -4rem;
   left: -6rem;
   background: rgba(212, 91, 53, 0.22);
 }
-
 .aurora-right {
   top: 14rem;
   right: -8rem;
   background: rgba(26, 125, 118, 0.18);
 }
-
 .hero,
 .workspace {
   position: relative;
@@ -74,14 +79,12 @@ input {
   width: min(1180px, 100%);
   margin: 0 auto;
 }
-
 .hero {
   display: grid;
   gap: 24px;
   grid-template-columns: 1.3fr 0.9fr;
   margin-bottom: 28px;
 }
-
 .hero-copy,
 .hero-panel,
 .composer,
@@ -91,7 +94,6 @@ input {
   backdrop-filter: blur(14px);
   box-shadow: var(--shadow);
 }
-
 .hero-copy,
 .hero-panel,
 .composer,
@@ -99,14 +101,12 @@ input {
   border-radius: 30px;
   padding: 28px;
 }
-
 .hero-panel {
   display: flex;
   flex-direction: column;
   gap: 22px;
   justify-content: space-between;
 }
-
 .eyebrow,
 .helper-copy,
 pre,
@@ -114,9 +114,11 @@ pre,
 .status-row,
 .metric-label,
 .provider-stack span {
-  font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+  font-family:
+    "IBM Plex Mono",
+    "SFMono-Regular",
+    monospace;
 }
-
 .eyebrow {
   color: var(--accent-deep);
   letter-spacing: 0.08em;
@@ -124,19 +126,16 @@ pre,
   font-size: 0.82rem;
   margin: 0 0 12px;
 }
-
 .hero h1,
 .section-heading h2,
 .empty-state h3 {
   margin: 0;
   line-height: 1.04;
 }
-
 .hero h1 {
   font-size: clamp(2.3rem, 4vw, 4.4rem);
   max-width: 13ch;
 }
-
 .hero-text,
 .section-heading p,
 .detail-list,
@@ -145,20 +144,17 @@ pre,
 .provider-card em {
   color: var(--ink-soft);
 }
-
 .hero-text {
   margin: 18px 0 0;
   max-width: 62ch;
   font-size: 1.03rem;
 }
-
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 20px;
 }
-
 .hero-link,
 .secondary-button {
   display: inline-flex;
@@ -172,19 +168,20 @@ pre,
   color: var(--ink);
   background: rgba(255, 255, 255, 0.6);
 }
-
 .hero-link {
-  background: linear-gradient(135deg, var(--accent), #e18d49);
+  background:
+    linear-gradient(
+      135deg,
+      var(--accent),
+      #e18d49);
   color: white;
   border: none;
 }
-
 .hero-link-muted,
 .secondary-button {
   background: rgba(255, 255, 255, 0.72);
   color: var(--ink);
 }
-
 .status-row {
   display: inline-flex;
   gap: 10px;
@@ -192,29 +189,24 @@ pre,
   color: var(--ink-soft);
   font-size: 0.92rem;
 }
-
 .status-dot {
   width: 12px;
   height: 12px;
   border-radius: 999px;
   background: #b8c4d5;
 }
-
 .status-dot.online {
   background: var(--teal);
   box-shadow: 0 0 0 6px rgba(26, 125, 118, 0.12);
 }
-
 .metric-grid,
 .dashboard-grid {
   display: grid;
   gap: 18px;
 }
-
 .metric-grid {
   grid-template-columns: repeat(2, 1fr);
 }
-
 .metric-card,
 .provider-card {
   padding: 18px;
@@ -222,20 +214,17 @@ pre,
   background: var(--surface-strong);
   border: 1px solid rgba(29, 36, 51, 0.08);
 }
-
 .metric-card strong {
   display: block;
   margin-top: 8px;
   font-size: 1.75rem;
 }
-
 .metric-label {
   color: var(--ink-soft);
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
-
 .provider-stack {
   display: grid;
   gap: 10px;
@@ -243,32 +232,26 @@ pre,
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.56);
 }
-
 .provider-stack span {
   font-size: 0.82rem;
   color: var(--ink-soft);
 }
-
 .workspace {
   display: grid;
   gap: 24px;
 }
-
 .section-heading {
   margin-bottom: 18px;
 }
-
 .section-heading p {
   margin: 8px 0 0;
 }
-
 .prompt-pills {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 18px;
 }
-
 .prompt-pill,
 .auth-tab {
   border: 1px solid rgba(29, 36, 51, 0.1);
@@ -278,24 +261,20 @@ pre,
   padding: 10px 14px;
   cursor: pointer;
 }
-
 .auth-tabs {
   display: flex;
   gap: 10px;
   margin-bottom: 16px;
 }
-
 .auth-tab.active {
   background: rgba(212, 91, 53, 0.12);
   border-color: rgba(212, 91, 53, 0.28);
 }
-
 .composer-form,
 .stack-form {
   display: grid;
   gap: 14px;
 }
-
 textarea,
 .field {
   width: 100%;
@@ -306,89 +285,79 @@ textarea,
   color: var(--ink);
   outline: none;
 }
-
 textarea {
   resize: vertical;
   min-height: 140px;
 }
-
 textarea:focus,
 .field:focus {
   border-color: rgba(212, 91, 53, 0.5);
   box-shadow: 0 0 0 5px rgba(212, 91, 53, 0.08);
 }
-
 .composer-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
 }
-
 .run-button {
   border: none;
   border-radius: 999px;
   padding: 14px 22px;
-  background: linear-gradient(135deg, var(--accent), #e18d49);
+  background:
+    linear-gradient(
+      135deg,
+      var(--accent),
+      #e18d49);
   color: white;
   cursor: pointer;
   font-weight: 700;
   box-shadow: 0 14px 30px rgba(212, 91, 53, 0.28);
 }
-
 .run-button:disabled {
   opacity: 0.7;
   cursor: wait;
 }
-
 .helper-copy {
   font-size: 0.8rem;
   color: var(--ink-soft);
 }
-
 .error-banner,
 .notice-banner {
   margin: 14px 0 0;
   padding: 14px 16px;
   border-radius: 18px;
 }
-
 .error-banner {
   color: #8d1d15;
   background: rgba(230, 84, 73, 0.1);
   border: 1px solid rgba(230, 84, 73, 0.16);
 }
-
 .notice-banner {
   color: #0c5e58;
   background: rgba(26, 125, 118, 0.1);
   border: 1px solid rgba(26, 125, 118, 0.16);
 }
-
 .results-grid {
   display: grid;
   gap: 24px;
   grid-template-columns: 1.15fr 1fr 1fr;
 }
-
 .panel-output {
   grid-row: span 2;
 }
-
 pre {
   margin: 0;
   white-space: pre-wrap;
   line-height: 1.6;
   font-size: 0.92rem;
 }
-
 .chip-row {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 14px;
 }
-
 .chip {
   border-radius: 999px;
   padding: 7px 10px;
@@ -396,83 +365,71 @@ pre {
   background: rgba(26, 125, 118, 0.1);
   color: var(--teal);
 }
-
 .detail-list {
   margin: 0;
   padding-left: 18px;
   line-height: 1.6;
 }
-
 .auth-layout,
 .dashboard-shell {
   display: grid;
   gap: 24px;
 }
-
 .auth-layout {
   grid-template-columns: repeat(2, 1fr);
 }
-
 .dashboard-grid {
   grid-template-columns: repeat(2, 1fr);
 }
-
 .dashboard-runner,
 .dashboard-output {
   grid-column: span 2;
 }
-
 .provider-cards {
   display: grid;
   gap: 12px;
   margin-bottom: 18px;
 }
-
 .history-list {
   display: grid;
   gap: 14px;
 }
-
 .history-item {
   border: 1px solid rgba(29, 36, 51, 0.1);
   border-radius: 20px;
   padding: 16px;
   background: rgba(255, 255, 255, 0.56);
 }
-
 .history-meta,
 .history-providers {
   display: flex;
   justify-content: space-between;
   gap: 12px;
   color: var(--ink-soft);
-  font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+  font-family:
+    "IBM Plex Mono",
+    "SFMono-Regular",
+    monospace;
   font-size: 0.8rem;
 }
-
 .history-input {
   margin: 10px 0;
   color: var(--ink);
 }
-
 .provider-card strong,
 .provider-card span,
 .provider-card em {
   display: block;
 }
-
 .provider-card strong {
   font-size: 1rem;
 }
-
 .provider-card span {
   margin-top: 4px;
 }
-
 .empty-state {
   text-align: center;
 }
-
 @media (max-width: 980px) {
   .hero,
   .results-grid,
@@ -480,7 +437,6 @@ pre {
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
-
   .panel-output,
   .dashboard-runner,
   .dashboard-output {
@@ -488,12 +444,10 @@ pre {
     grid-row: auto;
   }
 }
-
 @media (max-width: 640px) {
   .shell {
     padding: 18px 14px 40px;
   }
-
   .hero-copy,
   .hero-panel,
   .composer,
@@ -501,13 +455,11 @@ pre {
     border-radius: 24px;
     padding: 20px;
   }
-
   .composer-actions,
   .hero-actions {
     flex-direction: column;
     align-items: stretch;
   }
-
   .run-button,
   .hero-link,
   .secondary-button {

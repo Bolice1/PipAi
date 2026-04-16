@@ -1,10 +1,12 @@
 import express from "express";
 import { requireAuth, type AuthenticatedRequestLike } from "../middleware/authMiddleware";
 import { UserService } from "../services/userService";
+import { buildClearedSessionCookie, buildSessionCookie } from "../utils/cookies";
 
 type ResponseLike = {
   json: (payload: unknown) => void;
   status: (code: number) => ResponseLike;
+  setHeader: (name: string, value: string) => void;
 };
 
 type NextFunctionLike = (error?: unknown) => void;
@@ -28,7 +30,8 @@ export function createAuthRouter(userService: UserService) {
           password: req.body?.password || "",
         });
 
-        res.status(201).json(result);
+        res.setHeader("Set-Cookie", buildSessionCookie(result.token));
+        res.status(201).json({ user: result.user });
       } catch (error) {
         next(error);
       }
@@ -44,7 +47,8 @@ export function createAuthRouter(userService: UserService) {
           password: req.body?.password || "",
         });
 
-        res.status(200).json(result);
+        res.setHeader("Set-Cookie", buildSessionCookie(result.token));
+        res.status(200).json({ user: result.user });
       } catch (error) {
         next(error);
       }
@@ -63,6 +67,11 @@ export function createAuthRouter(userService: UserService) {
       }
     },
   );
+
+  router.post("/logout", (_req: { body?: AuthBody }, res: ResponseLike) => {
+    res.setHeader("Set-Cookie", buildClearedSessionCookie());
+    res.status(200).json({ ok: true });
+  });
 
   return router;
 }

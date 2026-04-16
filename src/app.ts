@@ -3,6 +3,7 @@ import { createAuthRouter } from "./routes/authRoutes";
 import { createDashboardRouter } from "./routes/dashboardRoutes";
 import { createPipelineRouter } from "./routes/pipelineRoutes";
 import { isDatabaseConfigured } from "./config/database";
+import { HistoryService } from "./services/historyService";
 import { ProviderPipelineService } from "./services/providerPipelineService";
 import { PipAIService } from "./services/pipaiService";
 import { UserService } from "./services/userService";
@@ -32,6 +33,7 @@ export function createApp() {
   const pipaiService = new PipAIService();
   const userService = new UserService();
   const providerPipelineService = new ProviderPipelineService();
+  const historyService = new HistoryService();
 
   app.use(express.json());
   app.use(express.static("public"));
@@ -42,7 +44,10 @@ export function createApp() {
 
   app.use("/api", createPipelineRouter(pipaiService));
   app.use("/api/auth", createAuthRouter(userService));
-  app.use("/api/dashboard", createDashboardRouter(userService, providerPipelineService));
+  app.use(
+    "/api/dashboard",
+    createDashboardRouter(userService, providerPipelineService, historyService),
+  );
   app.get("/api/system", (_req: RequestLike, res: ResponseLike) => {
     res.json({
       databaseConfigured: isDatabaseConfigured(),

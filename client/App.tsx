@@ -55,6 +55,21 @@ type UserProfile = {
   };
 };
 
+type HistoryItem = {
+  id: string;
+  input: string;
+  finalOutput: string;
+  summary: string[];
+  status: "success" | "failed";
+  errorMessage: string | null;
+  providerMapping: {
+    agentA: string;
+    agentB: string;
+    agentC: string;
+  };
+  createdAt: string;
+};
+
 const starterPrompts = [
   "Create an onboarding guide for new PipAI contributors.",
   "Plan a launch checklist for an AI club campus event.",
@@ -79,24 +94,12 @@ const providerInitialState = {
   claude: "",
 };
 
-function readStoredToken(): string {
-  return window.localStorage.getItem("pipai_token") || "";
-}
-
-function writeStoredToken(token: string) {
-  if (token) {
-    window.localStorage.setItem("pipai_token", token);
-  } else {
-    window.localStorage.removeItem("pipai_token");
-  }
-}
-
-async function requestJson<T>(path: string, init?: RequestInit, token = ""): Promise<T> {
+async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
+    credentials: "same-origin",
     ...init,
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(init?.headers || {}),
     },
   });
@@ -118,8 +121,8 @@ export function App() {
   const [demoLoading, setDemoLoading] = useState(false);
   const [demoError, setDemoError] = useState("");
 
-  const [token, setToken] = useState(() => readStoredToken());
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
   const [authMode, setAuthMode] = useState<"login" | "register">("register");
   const [authForm, setAuthForm] = useState(authInitialState);
   const [authLoading, setAuthLoading] = useState(false);
@@ -154,23 +157,30 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    writeStoredToken(token);
-
-    if (!token) {
-      setUser(null);
-      return;
-    }
-
-    requestJson<{ user: UserProfile }>("/api/auth/me", { method: "GET" }, token)
+    requestJson<{ user: UserProfile }>("/api/auth/me", { method: "GET" })
       .then((payload) => {
         setUser(payload.user);
       })
       .catch(() => {
-        writeStoredToken("");
-        setToken("");
         setUser(null);
+        setHistory([]);
       });
-  }, [token]);
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setHistory([]);
+      return;
+    }
+
+    requestJson<{ history: HistoryItem[] }>("/api/dashboard/history", { method: "GET" })
+      .then((payload) => {
+        setHistory(payload.history);
+      })
+      .catch(() => {
+        setHistory([]);
+      });
+  }, [user]);
 
   const dashboardReady = useMemo(() => Boolean(user), [user]);
 
@@ -200,12 +210,11 @@ export function App() {
 
     try {
       const endpoint = authMode === "register" ? "/api/auth/register" : "/api/auth/login";
-      const payload = await requestJson<{ token: string; user: UserProfile }>(endpoint, {
+      const payload = await requestJson<{ user: UserProfile }>(endpoint, {
         method: "POST",
         body: JSON.stringify(authForm),
       });
 
-      setToken(payload.token);
       setUser(payload.user);
       setAuthForm(authInitialState);
     } catch (caughtError) {
@@ -227,7 +236,6 @@ export function App() {
           method: "POST",
           body: JSON.stringify({ providerKeys: providerForm }),
         },
-        token,
       );
 
       setUser(payload.user);
@@ -252,10 +260,13 @@ export function App() {
           method: "POST",
           body: JSON.stringify({ input: workspaceInput }),
         },
-        token,
       );
 
       setWorkspaceResult(payload);
+      const historyPayload = await requestJson<{ history: HistoryItem[] }>("/api/dashboard/history", {
+        method: "GET",
+      });
+      setHistory(historyPayload.history);
     } catch (caughtError) {
       setWorkspaceError(
         caughtError instanceof Error ? caughtError.message : "Workspace pipeline failed.",
@@ -266,11 +277,14 @@ export function App() {
   }
 
   function logout() {
-    writeStoredToken("");
-    setToken("");
-    setUser(null);
-    setWorkspaceResult(null);
-    setProviderMessage("");
+    requestJson<{ ok: boolean }>("/api/auth/logout", { method: "POST" })
+      .catch(() => ({ ok: false }))
+      .finally(() => {
+        setUser(null);
+        setHistory([]);
+        setWorkspaceResult(null);
+        setProviderMessage("");
+      });
   }
 
   return (
@@ -493,7 +507,9 @@ export function App() {
               <li>Get an OpenAI API key and use it for Agent A research.</li>
               <li>Get a Gemini API key and use it for Agent B planning.</li>
               <li>Get a Claude API key and use it for Agent C execution.</li>
-              <li>Your provider keys are encrypted before they are stored in MongoDB.</li>
+              <li>Provider keys are validated on the server before they are saved.</li>
+              <li>Your session now stays in an HttpOnly cookie instead of localStorage.</li>
+              <li>Your dashboard also keeps a MongoDB history of recent runs.</li>
             </ul>
           </article>
         </section>
@@ -540,7 +556,7 @@ export function App() {
               <article className="panel">
                 <div className="section-heading">
                   <h2>Provider Keys</h2>
-                  <p>Paste your own API keys. Keys are encrypted before storage.</p>
+                  <p>Paste your own API keys. Each key is validated server-side before storage.</p>
                 </div>
                 <form onSubmit={saveProviderKeys} className="stack-form">
                   <input
@@ -620,6 +636,32 @@ export function App() {
                   {workspaceResult?.final_output ||
                     "Run the private workspace to see the provider-backed result here."}
                 </pre>
+              </article>
+
+              <article className="panel dashboard-output">
+                <div className="section-heading">
+                  <h2>Run History</h2>
+                  <p>Your last dashboard runs are stored in MongoDB.</p>
+                </div>
+                {history.length ? (
+                  <div className="history-list">
+                    {history.map((item) => (
+                      <div key={item.id} className="history-item">
+                        <div className="history-meta">
+                          <strong>{item.status === "success" ? "Success" : "Failed"}</strong>
+                          <span>{new Date(item.createdAt).toLocaleString()}</span>
+                        </div>
+                        <p className="history-input">{item.input}</p>
+                        <p className="history-providers">
+                          {item.providerMapping.agentA} / {item.providerMapping.agentB} / {item.providerMapping.agentC}
+                        </p>
+                        <pre>{item.finalOutput || item.errorMessage || "No output recorded."}</pre>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="notice-banner">No runs recorded yet. Your next private run will appear here.</p>
+                )}
               </article>
             </div>
           ) : (
