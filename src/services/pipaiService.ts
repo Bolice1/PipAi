@@ -1,6 +1,7 @@
 import { ExecutorAgent } from "../agents/executorAgent";
 import { PlannerAgent } from "../agents/plannerAgent";
 import { ResearchAgent } from "../agents/researchAgent";
+import { isDatabaseConfigured } from "../config/database";
 import { AgentPipeline, type PipelineResult } from "../core/pipeline";
 import { AppError } from "../utils/errors";
 
@@ -29,6 +30,7 @@ export class PipAIService {
     return {
       status: "ok",
       service: "pipai",
+      databaseReady: isDatabaseConfigured(),
       agents: [
         "Agent A - Research & Context Builder",
         "Agent B - Task Planner",

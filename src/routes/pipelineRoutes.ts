@@ -33,5 +33,18 @@ export function createPipelineRouter(pipaiService: PipAIService) {
     },
   );
 
+  router.get("/demo/agents", (_req: RequestLike, res: ResponseLike) => {
+    res.json({
+      headline: "Agent A to Agent C demo pipeline",
+      description:
+        "The public landing page uses example agents to show how PipAI stages research, planning, and execution.",
+      agents: [
+        { id: "agent-a", name: "Agent A", role: "Research & Context Builder" },
+        { id: "agent-b", name: "Agent B", role: "Task Planner" },
+        { id: "agent-c", name: "Agent C", role: "Executor" },
+      ],
+    });
+  });
+
   return router;
 }

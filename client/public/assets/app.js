@@ -21731,87 +21731,223 @@
     "Plan a launch checklist for an AI club campus event.",
     "Draft a concise research brief about multi-agent orchestration."
   ];
+  var dashboardPrompts = [
+    "Research, plan, and draft a launch memo for our student AI product.",
+    "Build a structured strategy brief for a campus ambassador program.",
+    "Create a customer onboarding sequence for a multi-agent SaaS platform."
+  ];
+  var authInitialState = {
+    name: "",
+    email: "",
+    password: ""
+  };
+  var providerInitialState = {
+    openai: "",
+    gemini: "",
+    claude: ""
+  };
+  function readStoredToken() {
+    return window.localStorage.getItem("pipai_token") || "";
+  }
+  function writeStoredToken(token) {
+    if (token) {
+      window.localStorage.setItem("pipai_token", token);
+    } else {
+      window.localStorage.removeItem("pipai_token");
+    }
+  }
+  async function requestJson(path, init, token = "") {
+    const response = await fetch(path, {
+      ...init,
+      headers: {
+        "Content-Type": "application/json",
+        ...token ? { Authorization: `Bearer ${token}` } : {},
+        ...init?.headers || {}
+      }
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error || "Request failed.");
+    }
+    return payload;
+  }
   function App() {
     const [input, setInput] = (0, import_react.useState)(starterPrompts[0]);
     const [health, setHealth] = (0, import_react.useState)(null);
-    const [result, setResult] = (0, import_react.useState)(null);
-    const [loading, setLoading] = (0, import_react.useState)(false);
-    const [error, setError] = (0, import_react.useState)("");
+    const [system, setSystem] = (0, import_react.useState)(null);
+    const [demoResult, setDemoResult] = (0, import_react.useState)(null);
+    const [demoLoading, setDemoLoading] = (0, import_react.useState)(false);
+    const [demoError, setDemoError] = (0, import_react.useState)("");
+    const [token, setToken] = (0, import_react.useState)(() => readStoredToken());
+    const [user, setUser] = (0, import_react.useState)(null);
+    const [authMode, setAuthMode] = (0, import_react.useState)("register");
+    const [authForm, setAuthForm] = (0, import_react.useState)(authInitialState);
+    const [authLoading, setAuthLoading] = (0, import_react.useState)(false);
+    const [authError, setAuthError] = (0, import_react.useState)("");
+    const [providerForm, setProviderForm] = (0, import_react.useState)(providerInitialState);
+    const [providerLoading, setProviderLoading] = (0, import_react.useState)(false);
+    const [providerMessage, setProviderMessage] = (0, import_react.useState)("");
+    const [workspaceInput, setWorkspaceInput] = (0, import_react.useState)(dashboardPrompts[0]);
+    const [workspaceResult, setWorkspaceResult] = (0, import_react.useState)(null);
+    const [workspaceLoading, setWorkspaceLoading] = (0, import_react.useState)(false);
+    const [workspaceError, setWorkspaceError] = (0, import_react.useState)("");
     (0, import_react.useEffect)(() => {
       let active = true;
-      fetch("/api/health").then(async (response) => {
-        if (!response.ok) {
-          throw new Error("Unable to load API health.");
+      Promise.all([
+        requestJson("/api/health").catch(() => null),
+        requestJson("/api/system").catch(() => null)
+      ]).then(([healthPayload, systemPayload]) => {
+        if (!active) {
+          return;
         }
-        return await response.json();
-      }).then((payload) => {
-        if (active) {
-          setHealth(payload);
-        }
-      }).catch(() => {
-        if (active) {
-          setHealth(null);
-        }
+        setHealth(healthPayload);
+        setSystem(systemPayload);
       });
       return () => {
         active = false;
       };
     }, []);
-    async function runPipeline(event) {
+    (0, import_react.useEffect)(() => {
+      writeStoredToken(token);
+      if (!token) {
+        setUser(null);
+        return;
+      }
+      requestJson("/api/auth/me", { method: "GET" }, token).then((payload) => {
+        setUser(payload.user);
+      }).catch(() => {
+        writeStoredToken("");
+        setToken("");
+        setUser(null);
+      });
+    }, [token]);
+    const dashboardReady = (0, import_react.useMemo)(() => Boolean(user), [user]);
+    async function runDemoPipeline(event) {
       event.preventDefault();
-      setLoading(true);
-      setError("");
+      setDemoLoading(true);
+      setDemoError("");
       try {
-        const response = await fetch("/api/pipeline/run", {
+        const payload = await requestJson("/api/pipeline/run", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
           body: JSON.stringify({ input })
         });
-        const payload = await response.json();
-        if (!response.ok) {
-          throw new Error(payload.error || "Pipeline execution failed.");
-        }
-        setResult(payload);
+        setDemoResult(payload);
       } catch (caughtError) {
-        const message = caughtError instanceof Error ? caughtError.message : "Unexpected pipeline error.";
-        setError(message);
+        setDemoError(caughtError instanceof Error ? caughtError.message : "Demo request failed.");
       } finally {
-        setLoading(false);
+        setDemoLoading(false);
       }
+    }
+    async function submitAuth(event) {
+      event.preventDefault();
+      setAuthLoading(true);
+      setAuthError("");
+      try {
+        const endpoint = authMode === "register" ? "/api/auth/register" : "/api/auth/login";
+        const payload = await requestJson(endpoint, {
+          method: "POST",
+          body: JSON.stringify(authForm)
+        });
+        setToken(payload.token);
+        setUser(payload.user);
+        setAuthForm(authInitialState);
+      } catch (caughtError) {
+        setAuthError(caughtError instanceof Error ? caughtError.message : "Authentication failed.");
+      } finally {
+        setAuthLoading(false);
+      }
+    }
+    async function saveProviderKeys(event) {
+      event.preventDefault();
+      setProviderLoading(true);
+      setProviderMessage("");
+      try {
+        const payload = await requestJson(
+          "/api/dashboard/keys",
+          {
+            method: "POST",
+            body: JSON.stringify({ providerKeys: providerForm })
+          },
+          token
+        );
+        setUser(payload.user);
+        setProviderForm(providerInitialState);
+        setProviderMessage("Provider keys saved securely.");
+      } catch (caughtError) {
+        setProviderMessage(caughtError instanceof Error ? caughtError.message : "Unable to save keys.");
+      } finally {
+        setProviderLoading(false);
+      }
+    }
+    async function runWorkspacePipeline(event) {
+      event.preventDefault();
+      setWorkspaceLoading(true);
+      setWorkspaceError("");
+      try {
+        const payload = await requestJson(
+          "/api/dashboard/pipeline/run",
+          {
+            method: "POST",
+            body: JSON.stringify({ input: workspaceInput })
+          },
+          token
+        );
+        setWorkspaceResult(payload);
+      } catch (caughtError) {
+        setWorkspaceError(
+          caughtError instanceof Error ? caughtError.message : "Workspace pipeline failed."
+        );
+      } finally {
+        setWorkspaceLoading(false);
+      }
+    }
+    function logout() {
+      writeStoredToken("");
+      setToken("");
+      setUser(null);
+      setWorkspaceResult(null);
+      setProviderMessage("");
     }
     return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "shell", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "aurora aurora-left" }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "aurora aurora-right" }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", { className: "hero", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "hero-copy", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "eyebrow", children: "Multi-Agent AI Workspace" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { children: "PipAI turns one prompt into a research, planning, and execution pipeline." }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "hero-text", children: "A lightweight React interface on top of the Express API, built to make the three-agent flow visible instead of hiding it behind one response box." })
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "eyebrow", children: "PipAI Public Landing" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { children: "Keep Agent A to C as the story on the front door, then unlock the real workspace inside." }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "hero-text", children: "Visitors see the example multi-agent system. Registered users get a private dashboard where Agent A uses OpenAI, Agent B uses Gemini, and Agent C uses Claude Sonnet with their own encrypted keys." }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "hero-actions", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { className: "hero-link", href: "#get-started", children: "Get Started" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { className: "hero-link hero-link-muted", href: "#demo", children: "Explore Demo" })
+          ] })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "hero-panel", children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "status-row", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `status-dot ${health ? "online" : "offline"}` }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: health ? `${health.service} API ready` : "API status unavailable" })
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: health ? `${health.service} public app ready` : "API status unavailable" })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "metric-grid", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "metric-card", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "metric-label", children: "Agents" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: health?.agents.length || 3 })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "metric-label", children: "Landing Mode" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Demo" })
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "metric-card", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "metric-label", children: "Output" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Markdown" })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "metric-label", children: "Dashboard" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: system?.databaseConfigured ? "Accounts" : "Needs DB" })
             ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "provider-stack", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Agent A: OpenAI in dashboard" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Agent B: Gemini in dashboard" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Agent C: Claude Sonnet in dashboard" })
           ] })
         ] })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("main", { className: "workspace", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { className: "composer", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { id: "demo", className: "composer", children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Prompt Composer" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Describe the task once and let each agent contribute its stage of the flow." })
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Public Demo" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Anyone can try the example Agent A to C workflow on the landing page." })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "prompt-pills", children: starterPrompts.map((prompt) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
             "button",
@@ -21823,40 +21959,39 @@
             },
             prompt
           )) }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", { onSubmit: runPipeline, className: "composer-form", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "sr-only", htmlFor: "pipeline-input", children: "Pipeline input" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", { onSubmit: runDemoPipeline, className: "composer-form", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
               "textarea",
               {
                 id: "pipeline-input",
                 value: input,
                 onChange: (event) => setInput(event.target.value),
-                placeholder: "Ask PipAI to research, plan, and execute a task.",
+                placeholder: "Ask the public demo pipeline to research, plan, and execute a task.",
                 rows: 6
               }
             ),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "composer-actions", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "run-button", type: "submit", disabled: loading, children: loading ? "Running pipeline..." : "Run PipAI" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "helper-copy", children: "POST /api/pipeline/run" })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "run-button", type: "submit", disabled: demoLoading, children: demoLoading ? "Running demo..." : "Run Public Demo" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "helper-copy", children: "Uses example Agent A, B, and C" })
             ] })
           ] }),
-          error ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "error-banner", children: error }) : null
+          demoError ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "error-banner", children: demoError }) : null
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { className: "results-grid", children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "panel panel-output", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Final Output" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "The executor turns the plan into the final markdown response." })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Demo Output" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "The landing page keeps the example pipeline visible to every visitor." })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("pre", { children: result?.final_output || "Run the pipeline to see the final output here." })
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("pre", { children: demoResult?.final_output || "Run the public demo to see the output here." })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "panel", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Agent A" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Research and context building." })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Research and context builder on the landing page." })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "chip-row", children: (result?.pipeline.research.keywords || []).map((keyword) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "chip", children: keyword }, keyword)) }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { className: "detail-list", children: (result?.pipeline.research.key_points || []).map((point) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "chip-row", children: (demoResult?.pipeline.research.keywords || []).map((keyword) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "chip", children: keyword }, keyword)) }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { className: "detail-list", children: (demoResult?.pipeline.research.key_points || []).map((point) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", { children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: point.confidence }),
               " ",
               point.insight
@@ -21865,16 +22000,205 @@
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "panel", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Agent B" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Task planning and constraints." })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Planner stage in the example pipeline." })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { className: "detail-list", children: (result?.pipeline.plan.instructions || []).map((instruction) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: instruction }, instruction)) })
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { className: "detail-list", children: (demoResult?.pipeline.plan.instructions || []).map((instruction) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: instruction }, instruction)) })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "panel", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Agent C" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Execution summary and final formatting." })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Executor stage in the example pipeline." })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { className: "detail-list", children: (result?.pipeline.execution.summary || []).map((item) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: item }, item)) })
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { className: "detail-list", children: (demoResult?.pipeline.execution.summary || []).map((item) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: item }, item)) })
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { id: "get-started", className: "auth-layout", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "panel auth-panel", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Get Started" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Create an account or sign in to open the private PipAI dashboard." })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "auth-tabs", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                "button",
+                {
+                  type: "button",
+                  className: authMode === "register" ? "auth-tab active" : "auth-tab",
+                  onClick: () => setAuthMode("register"),
+                  children: "Register"
+                }
+              ),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                "button",
+                {
+                  type: "button",
+                  className: authMode === "login" ? "auth-tab active" : "auth-tab",
+                  onClick: () => setAuthMode("login"),
+                  children: "Login"
+                }
+              )
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", { onSubmit: submitAuth, className: "stack-form", children: [
+              authMode === "register" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                "input",
+                {
+                  className: "field",
+                  type: "text",
+                  placeholder: "Full name",
+                  value: authForm.name,
+                  onChange: (event) => setAuthForm((current) => ({ ...current, name: event.target.value }))
+                }
+              ) : null,
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                "input",
+                {
+                  className: "field",
+                  type: "email",
+                  placeholder: "Email address",
+                  value: authForm.email,
+                  onChange: (event) => setAuthForm((current) => ({ ...current, email: event.target.value }))
+                }
+              ),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                "input",
+                {
+                  className: "field",
+                  type: "password",
+                  placeholder: "Password",
+                  value: authForm.password,
+                  onChange: (event) => setAuthForm((current) => ({ ...current, password: event.target.value }))
+                }
+              ),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "run-button", type: "submit", disabled: authLoading || !system?.databaseConfigured, children: authLoading ? "Working..." : authMode === "register" ? "Create Account" : "Login" })
+            ] }),
+            authError ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "error-banner", children: authError }) : null,
+            !system?.databaseConfigured ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "notice-banner", children: "Set `MONGODB_URI` and `APP_SECRET` on the server to enable accounts and encrypted key storage." }) : null
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "panel auth-panel", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Dashboard Workflow" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Private users bring their own model keys and run the real provider pipeline." })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("ul", { className: "detail-list", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: "Get an OpenAI API key and use it for Agent A research." }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: "Get a Gemini API key and use it for Agent B planning." }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: "Get a Claude API key and use it for Agent C execution." }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: "Your provider keys are encrypted before they are stored in MongoDB." })
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { className: "dashboard-shell", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Private Dashboard" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: dashboardReady ? `Welcome back, ${user?.name}.` : "Login or register first to access the private workspace." })
+          ] }),
+          dashboardReady ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "dashboard-grid", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "panel", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Saved Providers" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Each provider powers one agent in the private workflow." })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "provider-cards", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "provider-card", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Agent A" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "OpenAI" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("em", { children: user?.providers.openai.connected ? "Connected" : "Missing key" })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "provider-card", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Agent B" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Gemini" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("em", { children: user?.providers.gemini.connected ? "Connected" : "Missing key" })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "provider-card", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Agent C" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Claude Sonnet" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("em", { children: user?.providers.claude.connected ? "Connected" : "Missing key" })
+                ] })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "secondary-button", type: "button", onClick: logout, children: "Logout" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "panel", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Provider Keys" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Paste your own API keys. Keys are encrypted before storage." })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", { onSubmit: saveProviderKeys, className: "stack-form", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                  "input",
+                  {
+                    className: "field",
+                    type: "password",
+                    placeholder: "OpenAI API key",
+                    value: providerForm.openai,
+                    onChange: (event) => setProviderForm((current) => ({ ...current, openai: event.target.value }))
+                  }
+                ),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                  "input",
+                  {
+                    className: "field",
+                    type: "password",
+                    placeholder: "Gemini API key",
+                    value: providerForm.gemini,
+                    onChange: (event) => setProviderForm((current) => ({ ...current, gemini: event.target.value }))
+                  }
+                ),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                  "input",
+                  {
+                    className: "field",
+                    type: "password",
+                    placeholder: "Claude API key",
+                    value: providerForm.claude,
+                    onChange: (event) => setProviderForm((current) => ({ ...current, claude: event.target.value }))
+                  }
+                ),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "run-button", type: "submit", disabled: providerLoading, children: providerLoading ? "Saving..." : "Save Provider Keys" })
+              ] }),
+              providerMessage ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "notice-banner", children: providerMessage }) : null
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "panel dashboard-runner", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Run Private Workspace" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Agent A uses OpenAI, Agent B uses Gemini, and Agent C uses Claude." })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "prompt-pills", children: dashboardPrompts.map((prompt) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                "button",
+                {
+                  className: "prompt-pill",
+                  type: "button",
+                  onClick: () => setWorkspaceInput(prompt),
+                  children: prompt
+                },
+                prompt
+              )) }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", { onSubmit: runWorkspacePipeline, className: "composer-form", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                  "textarea",
+                  {
+                    value: workspaceInput,
+                    onChange: (event) => setWorkspaceInput(event.target.value),
+                    rows: 5,
+                    placeholder: "Run the private multi-provider pipeline with your saved keys."
+                  }
+                ),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "composer-actions", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "run-button", type: "submit", disabled: workspaceLoading, children: workspaceLoading ? "Running providers..." : "Run Private Workspace" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "helper-copy", children: "POST /api/dashboard/pipeline/run" })
+                ] })
+              ] }),
+              workspaceError ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "error-banner", children: workspaceError }) : null
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "panel panel-output dashboard-output", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Private Output" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "The authenticated pipeline uses real provider APIs with your stored keys." })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("pre", { children: workspaceResult?.final_output || "Run the private workspace to see the provider-backed result here." })
+            ] })
+          ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "panel empty-state", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { children: "Private workspace locked" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Create an account, connect OpenAI, Gemini, and Claude, then your dashboard will be ready for the real three-provider pipeline." })
           ] })
         ] })
       ] })
