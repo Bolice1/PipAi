@@ -1,0 +1,32 @@
+{
+  "name": "pipai",
+  "version": "1.0.0",
+  "description": "This is a lightweight multi-agent AI system where three specialized agents collaborate in a pipeline to produce accurate, structured, and efficient outputs.",
+  "main": "src/server.ts",
+  "scripts": {
+    "dev": "ts-node --transpile-only src/server.ts",
+    "start": "ts-node --transpile-only src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "test": "node --test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bolice1/PipAI.git"
+  },
+  "keywords": [
+    "orchestrator",
+    "AI",
+    "multi-agent"
+  ],
+  "author": "KOMEZUSENGE Bolice",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Bolice1/PipAI/issues"
+  },
+  "homepage": "https://github.com/Bolice1/PipAI#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.2"
+  }
+}
