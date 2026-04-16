@@ -4,9 +4,11 @@
   "description": "This is a lightweight multi-agent AI system where three specialized agents collaborate in a pipeline to produce accurate, structured, and efficient outputs.",
   "main": "src/server.ts",
   "scripts": {
-    "dev": "ts-node --transpile-only src/server.ts",
-    "start": "ts-node --transpile-only src/server.ts",
-    "build": "tsc -p tsconfig.json",
+    "build:server": "tsc -p tsconfig.json",
+    "build:ui": "node scripts/build-ui.mjs",
+    "dev": "npm run build:ui && ts-node --transpile-only src/server.ts",
+    "start": "npm run build:ui && ts-node --transpile-only src/server.ts",
+    "build": "npm run build:server && npm run build:ui",
     "test": "node --test"
   },
   "repository": {
@@ -26,7 +28,12 @@
   "homepage": "https://github.com/Bolice1/PipAI#readme",
   "dependencies": {
     "express": "^5.2.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.2"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.11"
   }
 }

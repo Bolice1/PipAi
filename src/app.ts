@@ -11,6 +11,7 @@ type RequestLike = {
 type ResponseLike = {
   json: (payload: unknown) => void;
   status: (code: number) => ResponseLike;
+  sendFile: (path: string, options?: { root?: string }) => void;
 };
 
 type NextFunctionLike = (error?: unknown) => void;
@@ -26,17 +27,10 @@ export function createApp() {
   const pipaiService = new PipAIService();
 
   app.use(express.json());
+  app.use(express.static("public"));
 
   app.get("/", (_req: RequestLike, res: ResponseLike) => {
-    res.json({
-      name: "PipAI",
-      description:
-        "A lightweight multi-agent AI system with research, planning, and execution stages.",
-      endpoints: {
-        health: "GET /api/health",
-        runPipeline: "POST /api/pipeline/run",
-      },
-    });
+    res.sendFile("index.html", { root: "public" });
   });
 
   app.use("/api", createPipelineRouter(pipaiService));
