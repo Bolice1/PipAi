@@ -71,15 +71,15 @@ type HistoryItem = {
 };
 
 const starterPrompts = [
-  "Create an onboarding guide for new PipAI contributors.",
-  "Plan a launch checklist for an AI club campus event.",
-  "Draft a concise research brief about multi-agent orchestration.",
+  "Create a market positioning brief for a new AI workflow.",
+  "Outline a launch strategy for a smart assistant product.",
+  "Summarize the latest trends in collaborative agent systems.",
 ];
 
 const dashboardPrompts = [
-  "Research, plan, and draft a launch memo for our student AI product.",
-  "Build a structured strategy brief for a campus ambassador program.",
-  "Create a customer onboarding sequence for a multi-agent SaaS platform.",
+  "Craft a product launch memo for a connected AI workspace.",
+  "Build a concise plan for a team-ready agent orchestration demo.",
+  "Generate a polished strategy brief for an AI collaboration platform.",
 ];
 
 const authInitialState = {
@@ -295,18 +295,17 @@ export function App() {
       <header className="hero">
         <div className="hero-copy">
           <p className="eyebrow">PipAI Public Landing</p>
-          <h1>Keep Agent A to C as the story on the front door, then unlock the real workspace inside.</h1>
+          <h1>Showcase a polished multi-agent experience while keeping the workspace focused and clean.</h1>
           <p className="hero-text">
-            Visitors see the example multi-agent system. Registered users get a private dashboard
-            where Agent A uses OpenAI, Agent B uses Gemini, and Agent C uses Claude Sonnet with
-            their own encrypted keys.
+            Public visitors can explore a sample AI workflow, and registered users unlock a private
+            dashboard for a secure workspace with connected provider integrations.
           </p>
           <div className="hero-actions">
             <a className="hero-link" href="#get-started">
-              Get Started
+              Start now
             </a>
             <a className="hero-link hero-link-muted" href="#demo">
-              Explore Demo
+              View demo
             </a>
           </div>
         </div>
@@ -327,9 +326,9 @@ export function App() {
             </div>
           </div>
           <div className="provider-stack">
-            <span>Agent A: OpenAI in dashboard</span>
-            <span>Agent B: Gemini in dashboard</span>
-            <span>Agent C: Claude Sonnet in dashboard</span>
+            <span>Preview agent orchestration in public mode</span>
+            <span>Unlock private provider workflows after login</span>
+            <span>Keep the interface clean and easy to explore</span>
           </div>
         </div>
       </header>
@@ -338,7 +337,7 @@ export function App() {
         <section id="demo" className="composer">
           <div className="section-heading">
             <h2>Public Demo</h2>
-            <p>Anyone can try the example Agent A to C workflow on the landing page.</p>
+            <p>Try a guided sample workflow that shows how the public preview works.</p>
           </div>
 
           <div className="prompt-pills">
@@ -377,7 +376,7 @@ export function App() {
           <article className="panel panel-output">
             <div className="section-heading">
               <h2>Demo Output</h2>
-              <p>The landing page keeps the example pipeline visible to every visitor.</p>
+              <p>Results from the public sample workflow are shown here instantly.</p>
             </div>
             <pre>{demoResult?.final_output || "Run the public demo to see the output here."}</pre>
           </article>
@@ -385,7 +384,7 @@ export function App() {
           <article className="panel">
             <div className="section-heading">
               <h2>Agent A</h2>
-              <p>Research and context builder on the landing page.</p>
+              <p>Research and insight generation for the sample demo.</p>
             </div>
             <div className="chip-row">
               {(demoResult?.pipeline.research.keywords || []).map((keyword) => (
@@ -406,7 +405,7 @@ export function App() {
           <article className="panel">
             <div className="section-heading">
               <h2>Agent B</h2>
-              <p>Planner stage in the example pipeline.</p>
+              <p>Strategic planning for the workflow in the demo.</p>
             </div>
             <ul className="detail-list">
               {(demoResult?.pipeline.plan.instructions || []).map((instruction) => (
@@ -418,7 +417,7 @@ export function App() {
           <article className="panel">
             <div className="section-heading">
               <h2>Agent C</h2>
-              <p>Executor stage in the example pipeline.</p>
+              <p>Execution and final delivery for the sample workflow.</p>
             </div>
             <ul className="detail-list">
               {(demoResult?.pipeline.execution.summary || []).map((item) => (
@@ -491,8 +490,7 @@ export function App() {
             {authError ? <p className="error-banner">{authError}</p> : null}
             {!system?.databaseConfigured ? (
               <p className="notice-banner">
-                Set `MONGODB_URI` and `APP_SECRET` on the server to enable accounts and encrypted
-                key storage.
+                Private account features will be available once the server is configured.
               </p>
             ) : null}
           </article>
@@ -504,12 +502,9 @@ export function App() {
             </div>
 
             <ul className="detail-list">
-              <li>Get an OpenAI API key and use it for Agent A research.</li>
-              <li>Get a Gemini API key and use it for Agent B planning.</li>
-              <li>Get a Claude API key and use it for Agent C execution.</li>
-              <li>Provider keys are validated on the server before they are saved.</li>
-              <li>Your session now stays in an HttpOnly cookie instead of localStorage.</li>
-              <li>Your dashboard also keeps a MongoDB history of recent runs.</li>
+              <li>Connect your provider accounts to move from preview to private workspace.</li>
+              <li>Securely store and reuse keys for authenticated runs.</li>
+              <li>Track your latest workspace activity from the dashboard.</li>
             </ul>
           </article>
         </section>
@@ -556,7 +551,7 @@ export function App() {
               <article className="panel">
                 <div className="section-heading">
                   <h2>Provider Keys</h2>
-                  <p>Paste your own API keys. Each key is validated server-side before storage.</p>
+                  <p>Paste your provider keys and keep them encrypted for your private workspace.</p>
                 </div>
                 <form onSubmit={saveProviderKeys} className="stack-form">
                   <input
@@ -596,7 +591,7 @@ export function App() {
               <article className="panel dashboard-runner">
                 <div className="section-heading">
                   <h2>Run Private Workspace</h2>
-                  <p>Agent A uses OpenAI, Agent B uses Gemini, and Agent C uses Claude.</p>
+                  <p>Execute the private multi-agent workflow with your connected providers.</p>
                 </div>
                 <div className="prompt-pills">
                   {dashboardPrompts.map((prompt) => (
@@ -621,7 +616,7 @@ export function App() {
                     <button className="run-button" type="submit" disabled={workspaceLoading}>
                       {workspaceLoading ? "Running providers..." : "Run Private Workspace"}
                     </button>
-                    <span className="helper-copy">POST /api/dashboard/pipeline/run</span>
+                    <span className="helper-copy">Run your private workspace securely.</span>
                   </div>
                 </form>
                 {workspaceError ? <p className="error-banner">{workspaceError}</p> : null}
@@ -641,7 +636,7 @@ export function App() {
               <article className="panel dashboard-output">
                 <div className="section-heading">
                   <h2>Run History</h2>
-                  <p>Your last dashboard runs are stored in MongoDB.</p>
+                  <p>Your latest dashboard runs appear here after each run.</p>
                 </div>
                 {history.length ? (
                   <div className="history-list">

@@ -21727,14 +21727,14 @@
   var import_react = __toESM(require_react());
   var import_jsx_runtime = __toESM(require_jsx_runtime());
   var starterPrompts = [
-    "Create an onboarding guide for new PipAI contributors.",
-    "Plan a launch checklist for an AI club campus event.",
-    "Draft a concise research brief about multi-agent orchestration."
+    "Create a market positioning brief for a new AI workflow.",
+    "Outline a launch strategy for a smart assistant product.",
+    "Summarize the latest trends in collaborative agent systems."
   ];
   var dashboardPrompts = [
-    "Research, plan, and draft a launch memo for our student AI product.",
-    "Build a structured strategy brief for a campus ambassador program.",
-    "Create a customer onboarding sequence for a multi-agent SaaS platform."
+    "Craft a product launch memo for a connected AI workspace.",
+    "Build a concise plan for a team-ready agent orchestration demo.",
+    "Generate a polished strategy brief for an AI collaboration platform."
   ];
   var authInitialState = {
     name: "",
@@ -21911,11 +21911,11 @@
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", { className: "hero", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "hero-copy", children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "eyebrow", children: "PipAI Public Landing" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { children: "Keep Agent A to C as the story on the front door, then unlock the real workspace inside." }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "hero-text", children: "Visitors see the example multi-agent system. Registered users get a private dashboard where Agent A uses OpenAI, Agent B uses Gemini, and Agent C uses Claude Sonnet with their own encrypted keys." }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { children: "Showcase a polished multi-agent experience while keeping the workspace focused and clean." }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "hero-text", children: "Public visitors can explore a sample AI workflow, and registered users unlock a private dashboard for a secure workspace with connected provider integrations." }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "hero-actions", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { className: "hero-link", href: "#get-started", children: "Get Started" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { className: "hero-link hero-link-muted", href: "#demo", children: "Explore Demo" })
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { className: "hero-link", href: "#get-started", children: "Start now" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { className: "hero-link hero-link-muted", href: "#demo", children: "View demo" })
           ] })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "hero-panel", children: [
@@ -21934,9 +21934,9 @@
             ] })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "provider-stack", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Agent A: OpenAI in dashboard" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Agent B: Gemini in dashboard" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Agent C: Claude Sonnet in dashboard" })
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Preview agent orchestration in public mode" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Unlock private provider workflows after login" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Keep the interface clean and easy to explore" })
           ] })
         ] })
       ] }),
@@ -21944,7 +21944,7 @@
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { id: "demo", className: "composer", children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Public Demo" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Anyone can try the example Agent A to C workflow on the landing page." })
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Try a guided sample workflow that shows how the public preview works." })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "prompt-pills", children: starterPrompts.map((prompt) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
             "button",
@@ -21978,14 +21978,14 @@
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "panel panel-output", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Demo Output" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "The landing page keeps the example pipeline visible to every visitor." })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Results from the public sample workflow are shown here instantly." })
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("pre", { children: demoResult?.final_output || "Run the public demo to see the output here." })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "panel", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Agent A" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Research and context builder on the landing page." })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Research and insight generation for the sample demo." })
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "chip-row", children: (demoResult?.pipeline.research.keywords || []).map((keyword) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "chip", children: keyword }, keyword)) }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { className: "detail-list", children: (demoResult?.pipeline.research.key_points || []).map((point) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", { children: [
@@ -21997,14 +21997,14 @@
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "panel", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Agent B" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Planner stage in the example pipeline." })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Strategic planning for the workflow in the demo." })
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { className: "detail-list", children: (demoResult?.pipeline.plan.instructions || []).map((instruction) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: instruction }, instruction)) })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "panel", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Agent C" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Executor stage in the example pipeline." })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Execution and final delivery for the sample workflow." })
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { className: "detail-list", children: (demoResult?.pipeline.execution.summary || []).map((item) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: item }, item)) })
           ] })
@@ -22069,7 +22069,7 @@
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "run-button", type: "submit", disabled: authLoading || !system?.databaseConfigured, children: authLoading ? "Working..." : authMode === "register" ? "Create Account" : "Login" })
             ] }),
             authError ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "error-banner", children: authError }) : null,
-            !system?.databaseConfigured ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "notice-banner", children: "Set `MONGODB_URI` and `APP_SECRET` on the server to enable accounts and encrypted key storage." }) : null
+            !system?.databaseConfigured ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "notice-banner", children: "Private account features will be available once the server is configured." }) : null
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "panel auth-panel", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
@@ -22077,12 +22077,9 @@
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Private users bring their own model keys and run the real provider pipeline." })
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("ul", { className: "detail-list", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: "Get an OpenAI API key and use it for Agent A research." }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: "Get a Gemini API key and use it for Agent B planning." }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: "Get a Claude API key and use it for Agent C execution." }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: "Provider keys are validated on the server before they are saved." }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: "Your session now stays in an HttpOnly cookie instead of localStorage." }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: "Your dashboard also keeps a MongoDB history of recent runs." })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: "Connect your provider accounts to move from preview to private workspace." }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: "Securely store and reuse keys for authenticated runs." }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: "Track your latest workspace activity from the dashboard." })
             ] })
           ] })
         ] }),
@@ -22119,7 +22116,7 @@
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "panel", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Provider Keys" }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Paste your own API keys. Each key is validated server-side before storage." })
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Paste your provider keys and keep them encrypted for your private workspace." })
               ] }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", { onSubmit: saveProviderKeys, className: "stack-form", children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
@@ -22159,7 +22156,7 @@
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "panel dashboard-runner", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Run Private Workspace" }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Agent A uses OpenAI, Agent B uses Gemini, and Agent C uses Claude." })
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Execute the private multi-agent workflow with your connected providers." })
               ] }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "prompt-pills", children: dashboardPrompts.map((prompt) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
                 "button",
@@ -22183,7 +22180,7 @@
                 ),
                 /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "composer-actions", children: [
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "run-button", type: "submit", disabled: workspaceLoading, children: workspaceLoading ? "Running providers..." : "Run Private Workspace" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "helper-copy", children: "POST /api/dashboard/pipeline/run" })
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "helper-copy", children: "Run your private workspace securely." })
                 ] })
               ] }),
               workspaceError ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "error-banner", children: workspaceError }) : null
@@ -22198,7 +22195,7 @@
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "panel dashboard-output", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-heading", children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Run History" }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Your last dashboard runs are stored in MongoDB." })
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Your latest dashboard runs appear here after each run." })
               ] }),
               history.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "history-list", children: history.map((item) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "history-item", children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "history-meta", children: [
